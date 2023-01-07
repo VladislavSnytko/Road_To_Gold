@@ -9,7 +9,6 @@ purple = (255, 0, 255)
 yellow = (255, 255, 0)
 
 
-# Стенки
 class Wall(pygame.sprite.Sprite):
 
     def __init__(self, x, y, width, height, color):
@@ -23,7 +22,6 @@ class Wall(pygame.sprite.Sprite):
         self.rect.left = x
 
 
-# Карта
 def setupRoom(all_sprites_list):
     # Создание списка спрайтов для стен
     wall_list = pygame.sprite.RenderPlain()
@@ -85,11 +83,14 @@ def setupDoor(all_sprites_list):
     return door
 
 
-class Coin(pygame.sprite.Sprite):
-    def __init__(self):
+class Block(pygame.sprite.Sprite):
+    def __init__(self, color, width, height):
         pygame.sprite.Sprite.__init__(self)
 
-        self.image = pygame.image.load('images/coin.png').convert()
+        self.image = pygame.Surface([width, height])
+        self.image.fill(white)
+        self.image.set_colorkey(white)
+        pygame.draw.ellipse(self.image, color, [0, 0, width, height])
 
         self.rect = self.image.get_rect()
 
@@ -143,142 +144,10 @@ class Player(pygame.sprite.Sprite):
                 self.rect.top = old_y
 
 
-# Передвижение монстров
 class Monster(Player):
-    def changespeed_monster(self, list, monster, turn, steps, lst):
-        try:
-            z = list[turn][2]
-            if steps < z:
-                self.change_x = list[turn][0]
-                self.change_y = list[turn][1]
-                steps += 1
-            else:
-                if turn < lst:
-                    turn += 1
-                elif monster == "agro":
-                    turn = 2
-                else:
-                    turn = 0
-                self.change_x = list[turn][0]
-                self.change_y = list[turn][1]
-                steps = 0
-            return [turn, steps]
-        except IndexError:
-            return [0, 0]
+    def changespeed_monster(self):
+        pass
 
-
-Skeleton_directions = [
-    [0, -30, 4],
-    [15, 0, 9],
-    [0, 15, 11],
-    [-15, 0, 23],
-    [0, 15, 7],
-    [15, 0, 3],
-    [0, -15, 3],
-    [15, 0, 19],
-    [0, 15, 3],
-    [15, 0, 3],
-    [0, 15, 3],
-    [15, 0, 3],
-    [0, -15, 15],
-    [-15, 0, 7],
-    [0, 15, 3],
-    [-15, 0, 19],
-    [0, -15, 11],
-    [15, 0, 9]
-]
-
-Goblin_directions = [
-    [0, -15, 4],
-    [15, 0, 9],
-    [0, 15, 11],
-    [15, 0, 3],
-    [0, 15, 7],
-    [-15, 0, 11],
-    [0, 15, 3],
-    [15, 0, 15],
-    [0, -15, 15],
-    [15, 0, 3],
-    [0, -15, 11],
-    [-15, 0, 3],
-    [0, -15, 11],
-    [-15, 0, 3],
-    [0, -15, 3],
-    [-15, 0, 7],
-    [0, -15, 3],
-    [15, 0, 15],
-    [0, 15, 15],
-    [-15, 0, 3],
-    [0, 15, 3],
-    [-15, 0, 3],
-    [0, -15, 7],
-    [-15, 0, 3],
-    [0, 15, 7],
-    [-15, 0, 11],
-    [0, -15, 7],
-    [15, 0, 5]
-]
-
-Crow_directions = [
-    [30, 0, 2],
-    [0, -15, 4],
-    [15, 0, 10],
-    [0, 15, 7],
-    [15, 0, 3],
-    [0, -15, 3],
-    [15, 0, 3],
-    [0, -15, 15],
-    [-15, 0, 15],
-    [0, 15, 3],
-    [15, 0, 15],
-    [0, 15, 11],
-    [-15, 0, 3],
-    [0, -15, 7],
-    [-15, 0, 11],
-    [0, 15, 3],
-    [-15, 0, 11],
-    [0, 15, 7],
-    [-15, 0, 3],
-    [0, -15, 3],
-    [-15, 0, 3],
-    [0, -15, 15],
-    [15, 0, 15],
-    [0, 15, 3],
-    [-15, 0, 15],
-    [0, 15, 11],
-    [15, 0, 3],
-    [0, -15, 11],
-    [15, 0, 11],
-    [0, 15, 3],
-    [15, 0, 1],
-]
-
-Agro_directions = [
-    [-30, 0, 2],
-    [0, -15, 4],
-    [15, 0, 5],
-    [0, 15, 7],
-    [-15, 0, 11],
-    [0, -15, 7],
-    [-15, 0, 3],
-    [0, 15, 7],
-    [-15, 0, 7],
-    [0, 15, 15],
-    [15, 0, 15],
-    [0, -15, 3],
-    [-15, 0, 11],
-    [0, -15, 7],
-    [15, 0, 3],
-    [0, -15, 11],
-    [15, 0, 9],
-]
-
-gl = len(Goblin_directions) - 1
-sl = len(Skeleton_directions) - 1
-crow_l = len(Crow_directions) - 1
-al = len(Agro_directions) - 1
-
-# Расположение монстров и игрока
 width = 303 - 16  # положение по ширине
 player_height = (7 * 60) + 19  # Высота гнома
 monster_height = (4 * 60) + 19  # Высота монстра
@@ -299,7 +168,7 @@ def StartGame():
 
     door = setupDoor(all_sprites_list)
 
-    coin_list = pygame.sprite.RenderPlain()
+    block_list = pygame.sprite.RenderPlain()
 
     # Создание монстров
     Gnom = Player(width, player_height, "images/Gnom.png")
@@ -321,46 +190,30 @@ def StartGame():
     Agro = Monster(Agro_width, monster_height, "images/Agro.png")
     monsta_list.add(Agro)
     all_sprites_list.add(Agro)
-
-    # Заполнение поля монетами
     for row in range(19):
         for column in range(19):
             if (row == 7 or row == 8) and (column == 8 or column == 9 or column == 10):
                 continue
             else:
-                coin = Coin()
-                coin.rect.x = (30 * column + 6) + 26
-                coin.rect.y = (30 * row + 6) + 26
+                block = Block(yellow, 4, 4)
 
-                # Проврка на столкновение спрайтов
-                wall_collide = pygame.sprite.spritecollide(coin, wall_list, False)
-                gnom_collide = pygame.sprite.spritecollide(coin, gnom_collide, False)
-                if wall_collide:
+                block.rect.x = (30 * column + 6) + 26
+                block.rect.y = (30 * row + 6) + 26
+
+                b_collide = pygame.sprite.spritecollide(block, wall_list, False)
+                p_collide = pygame.sprite.spritecollide(block, gnom_collide, False)
+                if b_collide:
                     continue
-                elif gnom_collide:
+                elif p_collide:
                     continue
                 else:
-                    # COIN в список
-                    coin_list.add(coin)
-                    all_sprites_list.add(coin)
-
-    # Для счетчика собранных монет
-    coin_list_lenth = len(coin_list)
-
+                    # Блок в список
+                    block_list.add(block)
+                    all_sprites_list.add(block)
+    block_list_lenth = len(block_list)
     score = 0
     game = False
-
-    skel_turn = 0
-    skel_steps = 0
-
-    gobl_turn = 0
-    gobl_steps = 0
-
-    crow_turn = 0
-    crow_steps = 0
-
-    agro_turn = 0
-    agro_steps = 0
+    i = 0
 
     while game is False:
         for event in pygame.event.get():
@@ -387,36 +240,11 @@ def StartGame():
                 if event.key == pygame.K_DOWN:
                     Gnom.changespeed(0, -30)
         Gnom.update(wall_list, door)
-        coin_hit_list = pygame.sprite.spritecollide(Gnom, coin_list, True)
-
-        # Реализация движения монстров
-        returned = Skeleton.changespeed_monster(Skeleton_directions, False, skel_turn, skel_steps, gl)
-        skel_turn = returned[0]
-        skel_steps = returned[1]
-        Skeleton.changespeed_monster(Skeleton_directions, False, skel_turn, skel_steps, gl)
-        Skeleton.update(wall_list, False)
-
-        returned = Goblin.changespeed_monster(Goblin_directions, False, gobl_turn, gobl_steps, sl)
-        gobl_turn = returned[0]
-        gobl_steps = returned[1]
-        Goblin.changespeed_monster(Goblin_directions, False, gobl_turn, gobl_steps, sl)
-        Goblin.update(wall_list, False)
-
-        returned = Crow.changespeed_monster(Crow_directions, False, crow_turn, crow_steps, crow_l)
-        crow_turn = returned[0]
-        crow_steps = returned[1]
-        Crow.changespeed_monster(Crow_directions, False, crow_turn, crow_steps, crow_l)
-        Crow.update(wall_list, False)
-
-        returned = Agro.changespeed_monster(Agro_directions, "agro", agro_turn, agro_steps, al)
-        agro_turn = returned[0]
-        agro_steps = returned[1]
-        Agro.changespeed_monster(Agro_directions, "agro", agro_turn, agro_steps, al)
-        Agro.update(wall_list, False)
+        blocks_hit_list = pygame.sprite.spritecollide(Gnom, block_list, True)
 
         # список взаимодействий
-        if len(coin_hit_list) > 0:
-            score += len(coin_hit_list)
+        if len(blocks_hit_list) > 0:
+            score += len(blocks_hit_list)
         screen.fill(black)
         wall_list.draw(screen)
         door.draw(screen)
