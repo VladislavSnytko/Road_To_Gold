@@ -424,13 +424,57 @@ def StartGame():
         door.draw(screen)
         all_sprites_list.draw(screen)
         monsta_list.draw(screen)
+        # Счетчик монеток
+        text = font.render("Score: " + str(score) + "/" + str(coin_list_lenth), True, red)
+        screen.blit(text, [10, 616])
+
         if score == coin_list_lenth:
-            game = True
+            doNext("Отчично, ты победил!", 145, all_sprites_list, coin_list, monsta_list, pacman_collide,
+                   wall_list, door)
         if monsta_hit_list:
-            game = True
+            doNext("Game Over", 235, all_sprites_list, coin_list, monsta_list, gnom_collide, wall_list, door)
 
         pygame.display.flip()
         clock.tick(10)
+
+# экран выхода из игры или перезапуска игры
+def doNext(message, left, all_sprites_list, block_list, monsta_list, pacman_collide, wall_list, gate):
+    w = pygame.Surface((400, 200))
+    w.set_alpha(300)
+    w.fill((139, 0, 0))
+    screen.blit(w, (100, 200))
+
+    # Выиграл или проиграл
+    text1 = font.render(message, True, white)
+    screen.blit(text1, [left, 233])
+
+    text2 = font.render("Для игры, нажмите ENTER.", True, white)
+    screen.blit(text2, [135, 303])
+    text3 = font.render("Для выхода ESCAPE.", True, white)
+    screen.blit(text3, [165, 333])
+
+    running = True
+
+    while running:
+        clock = pygame.time.Clock()
+        pygame.display.flip()
+        clock.tick(100)
+        for event in pygame.event.get():
+
+            if event.type == pygame.QUIT:
+                running = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    running = False
+                if event.key == pygame.K_RETURN:
+                    del all_sprites_list
+                    del block_list
+                    del monsta_list
+                    del pacman_collide
+                    del wall_list
+                    del gate
+                    StartGame()
+    pygame.quit()
 
 
 if __name__ == "__main__":
@@ -445,6 +489,9 @@ if __name__ == "__main__":
     background = background.convert()
 
     background.fill((139, 0, 0))
+
+    pygame.font.init()
+    font = pygame.font.Font("freesansbold.ttf", 24)
 
     clock = pygame.time.Clock()
 
